@@ -1,15 +1,13 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "path";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 function createPrismaClient() {
-  const dbUrl = path.join(process.cwd(), "dev.db");
-  const adapter = new PrismaBetterSqlite3({ url: dbUrl });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 
-// In production, reuse a singleton. In dev, always create fresh so that
-// `prisma generate` changes are picked up by HMR without a server restart.
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 export const prisma =
